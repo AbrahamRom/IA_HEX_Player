@@ -57,14 +57,14 @@ class MyBoard(HexBoard):
                 if cell == 0:
                     print(". ", end="")
                 elif cell == 1:
-                    print("B ", end="")  # Blue player (North-South)
+                    print("R ", end="")  # Red player (North-South)
                 else:
-                    print("R ", end="")  # Red player (East-West)
+                    print("B ", end="")  # Blue player (East-West)
             print()  # New line after each row
 
     def check_connection(self, player_id: int) -> bool:
         """Verifica si el jugador ha conectado sus dos lados"""
-        if player_id == 1:  # Jugador 1 conecta norte-sur
+        if player_id == 1:  # Jugador 1 (Rojo) conecta norte-sur
             # Encontrar todas las piezas en la primera fila
             start_positions = [
                 (0, col) for col in range(self.size) if self.board[0][col] == 1
@@ -91,11 +91,10 @@ class MyBoard(HexBoard):
                             and self.board[new_row][new_col] == 1
                             and (new_row, new_col) not in visited
                         ):
-
                             visited.add((new_row, new_col))
                             queue.append((new_row, new_col))
 
-        else:  # Jugador 2 conecta este-oeste
+        else:  # Jugador 2 (Azul) conecta este-oeste
             # Encontrar todas las piezas en la primera columna
             start_positions = [
                 (row, 0) for row in range(self.size) if self.board[row][0] == 2
@@ -122,7 +121,6 @@ class MyBoard(HexBoard):
                             and self.board[new_row][new_col] == 2
                             and (new_row, new_col) not in visited
                         ):
-
                             visited.add((new_row, new_col))
                             queue.append((new_row, new_col))
 
