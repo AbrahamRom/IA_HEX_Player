@@ -6,9 +6,9 @@ class MyBoard(HexBoard):
     def __init__(self, size: int):
         super().__init__(size)
 
-    def clone(self) -> "HexBoard":
+    def clone(self) -> "MyBoard":
         """Devuelve una copia del tablero actual"""
-        new_board = HexBoard(self.size)
+        new_board = MyBoard(self.size)
         new_board.board = [row[:] for row in self.board]
         new_board.player_positions = {
             1: self.player_positions[1].copy(),

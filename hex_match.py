@@ -2,6 +2,8 @@ from hexboard import MyBoard
 from player import BadPlayer, ManhattanPlayer, AsPlayer
 from UCSPlayer import UCSPlayer
 from A_star_player import AStarPlayer
+from Minmax_Player import MinMaxPlayer
+from MCSPlayer import MCSPlayer, MCS_UCT_Player
 import time
 from tabulate import tabulate
 
@@ -69,15 +71,15 @@ def play_tournament(player1, player2, board_size, num_games: int = 10) -> None:
     print(tabulate(data, headers=headers, tablefmt="grid"))
 
 
-def play_game(board_size: int = 19) -> int:
+def play_game(board_size: int = 7) -> int:
     """
     Play a game of Hex between two AI players
     Returns the winner's ID (1 or 2)
     """
     # Initialize board and players
     board = MyBoard(board_size)
-    player1 = AStarPlayer(1)
-    player2 = UCSPlayer(2)
+    player1 = MCSPlayer(1)
+    player2 = MCS_UCT_Player(2, simulation_time=2.0)
 
     current_player = player1
     turn = 1
