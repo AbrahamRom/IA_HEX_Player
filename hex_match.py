@@ -3,7 +3,12 @@ from player import BadPlayer, ManhattanPlayer, AsPlayer
 from UCSPlayer import UCSPlayer
 from A_star_player import AStarPlayer
 from Minmax_Player import MinMaxPlayer
-from MCSPlayer import MCSPlayer, MCS_UCT_Player
+from MCSPlayer import (
+    MCSPlayer,
+    MCS_UCT_Player,
+    MCT_A_star_Sim_Player as MCAsSP,
+    MCT_A_star_Exp_Player as MCAEP,
+)
 import time
 from tabulate import tabulate
 
@@ -78,7 +83,8 @@ def play_game(board_size: int = 7) -> int:
     """
     # Initialize board and players
     board = MyBoard(board_size)
-    player1 = MCSPlayer(1)
+    player1 = MCAEP(1, simulation_time=2.0)
+    # player1 = MCSPlayer(1, simulation_time=2.0)
     player2 = MCS_UCT_Player(2, simulation_time=2.0)
 
     current_player = player1

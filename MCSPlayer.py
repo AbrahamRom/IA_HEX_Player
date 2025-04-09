@@ -170,3 +170,217 @@ class MCS_UCT_Player(Player):
             if won:
                 node.wins += 1
             node = node.parent
+
+
+class MCT_A_star_Sim_Player(MCS_UCT_Player):
+    def __init__(self, player_id, simulation_time=2.0):
+        super().__init__(player_id, simulation_time)
+
+    def _heuristic(self, pos, goal_cells, board):
+        """Manhattan distance heuristic adjusted for hex board"""
+        min_dist = float("inf")
+        row, col = pos
+        for goal_row, goal_col in goal_cells:
+            # Adjusted distance calculation for hex grid
+            dist = abs(row - goal_row) + abs(col - goal_col)
+            min_dist = min(min_dist, dist)
+        return min_dist
+
+    def _get_neighbors(self, pos, board):
+        """Get valid neighboring cells"""
+        row, col = pos
+        directions = [(-1, 0), (1, 0), (0, -1), (0, 1), (-1, 1), (1, -1)]
+        neighbors = []
+
+        for dr, dc in directions:
+            new_row, new_col = row + dr, col + dc
+            if (
+                0 <= new_row < board.size
+                and 0 <= new_col < board.size
+                and board.board[new_row][new_col] == 0
+            ):
+                neighbors.append((new_row, new_col))
+        return neighbors
+
+    def _get_goal_cells(self, player_id, board):
+        """Get the goal cells based on player_id"""
+        if player_id == 1:  # Vertical connection (top to bottom)
+            return [(board.size - 1, col) for col in range(board.size)]
+        else:  # Horizontal connection (left to right)
+            return [(row, board.size - 1) for row in range(board.size)]
+
+    def _get_start_cells(self, player_id, board):
+        """Get the starting cells based on player_id"""
+        if player_id == 1:  # Vertical connection (top to bottom)
+            return [(0, col) for col in range(board.size)]
+        else:  # Horizontal connection (left to right)
+            return [(row, 0) for row in range(board.size)]
+
+    def _a_star_simulation(self, board, player_id):
+        """Simulate game using A* pathfinding"""
+        from heapq import heappush, heappop
+
+        sim_board = board.clone()
+        current_player = player_id
+
+        while True:
+            # Get start and goal positions for current player
+            start_cells = self._get_start_cells(current_player, sim_board)
+            goal_cells = self._get_goal_cells(current_player, sim_board)
+
+            # Initialize A* algorithm
+            open_set = []
+            closed_set = set()
+            g_score = {}
+            f_score = {}
+
+            # Add all start cells to open set
+            for start in start_cells:
+                if sim_board.board[start[0]][start[1]] == 0:
+                    heappush(
+                        open_set, (self._heuristic(start, goal_cells, sim_board), start)
+                    )
+                    g_score[start] = 0
+                    f_score[start] = self._heuristic(start, goal_cells, sim_board)
+
+            # A* search
+            selected_move = None
+            while open_set and not selected_move:
+                current = heappop(open_set)[1]
+
+                if current in goal_cells:
+                    selected_move = current
+                    break
+
+                closed_set.add(current)
+
+                for neighbor in self._get_neighbors(current, sim_board):
+                    if neighbor in closed_set:
+                        continue
+
+                    tentative_g = g_score[current] + 1
+
+                    if neighbor not in g_score or tentative_g < g_score[neighbor]:
+                        g_score[neighbor] = tentative_g
+                        f_score[neighbor] = tentative_g + self._heuristic(
+                            neighbor, goal_cells, sim_board
+                        )
+                        heappush(open_set, (f_score[neighbor], neighbor))
+
+            # If no path found, make a random move
+            if not selected_move:
+                moves = sim_board.get_possible_moves()
+                if not moves:
+                    return False
+                selected_move = random.choice(moves)
+
+            # Make the move
+            sim_board.place_piece(selected_move[0], selected_move[1], current_player)
+
+            # Check for winner
+            if sim_board.check_connection(current_player):
+                return current_player == self.player_id
+
+            # Switch players
+            current_player = 3 - current_player
+
+    def _simulate_game(self, board, player_id: int) -> bool:
+        """Override the random simulation with A* guided simulation"""
+        return self._a_star_simulation(board, player_id)
+
+
+class MCT_A_star_Exp_Player(MCS_UCT_Player):
+    def __init__(self, player_id, simulation_time=2.0):
+        super().__init__(player_id, simulation_time)
+
+    def _heuristic(self, pos, goal_cells, board):
+        """Manhattan distance heuristic adjusted for hex board"""
+        min_dist = float("inf")
+        row, col = pos
+        for goal_row, goal_col in goal_cells:
+            dist = abs(row - goal_row) + abs(col - goal_col)
+            min_dist = min(min_dist, dist)
+        return min_dist
+
+    def _get_neighbors(self, pos, board):
+        """Get valid neighboring cells"""
+        row, col = pos
+        directions = [(-1, 0), (1, 0), (0, -1), (0, 1), (-1, 1), (1, -1)]
+        neighbors = []
+        for dr, dc in directions:
+            new_row, new_col = row + dr, col + dc
+            if (
+                0 <= new_row < board.size
+                and 0 <= new_col < board.size
+                and board.board[new_row][new_col] == 0
+            ):
+                neighbors.append((new_row, new_col))
+        return neighbors
+
+    def _get_goal_cells(self, player_id, board):
+        """Get goal cells based on player_id"""
+        if player_id == 1:  # Vertical connection
+            return [(board.size - 1, col) for col in range(board.size)]
+        else:  # Horizontal connection
+            return [(row, board.size - 1) for row in range(board.size)]
+
+    def _get_start_cells(self, player_id, board):
+        """Get starting cells based on player_id"""
+        if player_id == 1:  # Vertical connection
+            return [(0, col) for col in range(board.size)]
+        else:  # Horizontal connection
+            return [(row, 0) for row in range(board.size)]
+
+    def _evaluate_move_a_star(self, move, board, player_id):
+        """Evaluate a move using A* pathfinding"""
+        from heapq import heappush, heappop
+
+        # Make the move on a temporary board
+        sim_board = board.clone()
+        sim_board.place_piece(move[0], move[1], player_id)
+
+        start_cells = self._get_start_cells(player_id, sim_board)
+        goal_cells = self._get_goal_cells(player_id, sim_board)
+
+        # Initialize A* algorithm
+        open_set = []
+        closed_set = set()
+        g_score = {}
+
+        # Add all start cells to open set
+        min_f_score = float("inf")
+        for start in start_cells:
+            if sim_board.board[start[0]][start[1]] in [0, player_id]:
+                h_score = self._heuristic(start, goal_cells, sim_board)
+                heappush(open_set, (h_score, start))
+                g_score[start] = 0
+                min_f_score = min(min_f_score, h_score)
+
+        # If no valid path exists, return a high score
+        if min_f_score == float("inf"):
+            return float("inf")
+
+        return min_f_score
+
+    def _select(self, node: Node, board) -> Node:
+        """Modified selection using A* evaluation for unvisited nodes"""
+        while node.children is not None and node.children:
+            if not all(child.visits > 0 for child in node.children):
+                # Evaluate unvisited children using A*
+                unvisited = [c for c in node.children if c.visits == 0]
+                scores = [
+                    (self._evaluate_move_a_star(c.move, board, node.player_id), c)
+                    for c in unvisited
+                ]
+                return min(scores, key=lambda x: x[0])[1]
+            # Use standard UCT for visited nodes
+            node = max(node.children, key=lambda c: c.uct_value())
+        return node
+
+
+class Gplayer(Player):
+    def __init__(self, player_id):
+        super().__init__(player_id)
+
+    def play(self, board):
+        pass
