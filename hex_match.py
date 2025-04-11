@@ -11,9 +11,8 @@ from MCSPlayer import (
     MCT_Full_A_Star_Player as MCTFAP,
     MCT_Heuristic_Player as MCTHP,
 )
-from pablo import RavePlayer as RavePlayerP
 
-from best_players import RavePlayer as RavePlayerM
+from best_players import MonteCarloHexPlayer as RavePlayer
 import time
 from tabulate import tabulate
 
@@ -47,16 +46,32 @@ def play_match(player1, player2, board_size):
 
 def play_tournament(player1, player2, board_size, num_games: int = 10) -> None:
     """
-    Play a tournament of multiple Hex games and track the results
+    Play a tournament of multiple Hex games and track the results.
+    Half of the games will be started by player1 and half by player2.
     """
     p1_wins = 0
     p2_wins = 0
     p1_total_time = 0
     p2_total_time = 0
 
+    # Calculate number of games for each starting position
+    games_per_player = num_games // 2
+    remaining_games = num_games % 2  # In case of odd number of games
+
     for game in range(num_games):
         print(f"\nGame {game + 1} of {num_games}")
-        winner, p1_time, p2_time = play_match(player1, player2, board_size)
+
+        # Determine starting player based on game number
+        if game < games_per_player:
+            first_player = player1
+            second_player = player2
+            print("Player 1 starts")
+        else:
+            first_player = player2
+            second_player = player1
+            print("Player 2 starts")
+
+        winner, p1_time, p2_time = play_match(first_player, second_player, board_size)
         p1_total_time += p1_time
         p2_total_time += p2_time
 
@@ -71,6 +86,7 @@ def play_tournament(player1, player2, board_size, num_games: int = 10) -> None:
     headers = ["Metric", "Player 1", "Player 2"]
     data = [
         ["Wins", p1_wins, p2_wins],
+        ["Games starting first", games_per_player + remaining_games, games_per_player],
         ["Total time (s)", f"{p1_total_time:.2f}", f"{p2_total_time:.2f}"],
         [
             "Avg time/game (s)",
@@ -95,9 +111,9 @@ def play_game(board_size: int = 7) -> int:
     # player1 = MCTHP(1, simulation_time=2.0)
     # player1 = MCTFAP(1, simulation_time=2.0)
     # player1 = MCTAsSP(1, simulation_time=2.0)
-    player1 = RavePlayerP(1)
+    player1 = RavePlayer(1, time_limit=2.0)
 
-    player2 = RavePlayerM(2, simulation_time=7.0)
+    player2 = MCS_UCT_Player(2, simulation_time=2.0)
 
     current_player = player1
     turn = 1
