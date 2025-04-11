@@ -1,1 +1,4 @@
 *.pyc
+pablo.py
+utils.py
+hex_board.py

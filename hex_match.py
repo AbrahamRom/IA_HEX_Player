@@ -8,7 +8,12 @@ from MCSPlayer import (
     MCS_UCT_Player,
     MCT_A_star_Sim_Player as MCAsSP,
     MCT_A_star_Exp_Player as MCAEP,
+    MCT_Full_A_Star_Player as MCTFAP,
+    MCT_Heuristic_Player as MCTHP,
 )
+from pablo import RavePlayer as RavePlayerP
+
+from best_players import RavePlayer as RavePlayerM
 import time
 from tabulate import tabulate
 
@@ -57,8 +62,10 @@ def play_tournament(player1, player2, board_size, num_games: int = 10) -> None:
 
         if winner == 1:
             p1_wins += 1
+            print(f"Winner: Player 1 (Time: {p1_time:.2f}s)")
         else:
             p2_wins += 1
+            print(f"Winner: Player 2 (Time: {p2_time:.2f}s)")
 
     # Prepare data for the table
     headers = ["Metric", "Player 1", "Player 2"]
@@ -83,9 +90,14 @@ def play_game(board_size: int = 7) -> int:
     """
     # Initialize board and players
     board = MyBoard(board_size)
-    player1 = MCAEP(1, simulation_time=2.0)
+    # player1 = MCAEP(1, simulation_time=2.0)
     # player1 = MCSPlayer(1, simulation_time=2.0)
-    player2 = MCS_UCT_Player(2, simulation_time=2.0)
+    # player1 = MCTHP(1, simulation_time=2.0)
+    # player1 = MCTFAP(1, simulation_time=2.0)
+    # player1 = MCTAsSP(1, simulation_time=2.0)
+    player1 = RavePlayerP(1)
+
+    player2 = RavePlayerM(2, simulation_time=7.0)
 
     current_player = player1
     turn = 1

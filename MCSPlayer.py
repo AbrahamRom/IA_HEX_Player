@@ -574,7 +574,7 @@ class MCT_Heuristic_Player(MCS_UCT_Player):
         score += empty_neighbors * 0.5 + friendly_neighbors * 1.0
         return score
 
-    def _get_best_moves(self, board, player_id, num_moves=5):
+    def _get_best_moves(self, board, player_id, num_moves=1):
         """Get the top N moves based on heuristic evaluation"""
         possible_moves = board.get_possible_moves()
         move_scores = []
