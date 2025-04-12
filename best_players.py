@@ -237,6 +237,4 @@ class MonteCarloHexPlayer(Player):
                 best_visits = child.visits
                 best_move = move
 
-        # (Opcional) Se puede mostrar información adicional de la búsqueda:
-        # print(f"Iteraciones realizadas: {iterations}, Mejor movimiento {best_move} con {best_visits} visitas.")
         return best_move
