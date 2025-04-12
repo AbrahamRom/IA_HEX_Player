@@ -4,3 +4,4 @@ utils.py
 hex_board.py
 /ctypes
 /cythonhex
+rich.py
