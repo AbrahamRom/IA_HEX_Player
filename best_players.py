@@ -17,15 +17,6 @@ from basic_classes import (
 # - check_connection(player_id): retorna True si el jugador logra la conexión ganadora.
 
 
-# También se asume la existencia de la clase Player base:
-class Player:
-    def __init__(self, player_id: int):
-        self.player_id = player_id
-
-    def play(self, board: "HexBoard") -> tuple:
-        raise NotImplementedError("¡Implementa este método!")
-
-
 # ------------------------------
 # Clase para los nodos del árbol MCTS con RAVE
 # ------------------------------

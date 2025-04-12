@@ -1,16 +1,4 @@
 from hexboard import MyBoard
-from player import BadPlayer, ManhattanPlayer, AsPlayer
-from UCSPlayer import UCSPlayer
-from A_star_player import AStarPlayer
-from Minmax_Player import MinMaxPlayer
-from MCSPlayer import (
-    MCSPlayer,
-    MCS_UCT_Player,
-    MCT_A_star_Sim_Player as MCAsSP,
-    MCT_A_star_Exp_Player as MCAEP,
-    MCT_Full_A_Star_Player as MCTFAP,
-    MCT_Heuristic_Player as MCTHP,
-)
 
 from best_players import MonteCarloHexPlayer as RavePlayer
 import time
@@ -113,7 +101,7 @@ def play_game(board_size: int = 7) -> int:
     # player1 = MCTAsSP(1, simulation_time=2.0)
     player1 = RavePlayer(1, time_limit=2.0)
 
-    player2 = MCS_UCT_Player(2, simulation_time=2.0)
+    player2 = RavePlayer(2, time_limit=2.0)
 
     current_player = player1
     turn = 1
